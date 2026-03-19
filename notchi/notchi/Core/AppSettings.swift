@@ -5,6 +5,7 @@ struct AppSettings {
     private static let isMutedKey = "isMuted"
     private static let previousSoundKey = "previousNotificationSound"
     private static let isUsageEnabledKey = "isUsageEnabled"
+    private static let selectedCharacterKey = "selectedCharacter"
 
     static var isUsageEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: isUsageEnabledKey) }
@@ -14,6 +15,19 @@ struct AppSettings {
     static var anthropicApiKey: String? {
         get { KeychainManager.getAnthropicApiKey() }
         set { KeychainManager.setAnthropicApiKey(newValue) }
+    }
+
+    static var selectedCharacter: CharacterTheme {
+        get {
+            guard let rawValue = UserDefaults.standard.string(forKey: selectedCharacterKey),
+                  let theme = CharacterTheme(rawValue: rawValue) else {
+                return .notchi
+            }
+            return theme
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: selectedCharacterKey)
+        }
     }
 
     static var notificationSound: NotificationSound {
