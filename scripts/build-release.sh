@@ -34,6 +34,13 @@ fi
 
 echo "=== Building $APP_NAME v$VERSION ==="
 
+# ─── Save original branch & switch to dev ───
+ORIGINAL_BRANCH=$(git -C "$PROJECT_DIR" rev-parse --abbrev-ref HEAD)
+echo "Switching to dev branch (will return to $ORIGINAL_BRANCH when done)..."
+cd "$PROJECT_DIR"
+git checkout dev
+git pull origin dev
+
 # ─── Step 0: Ensure gh CLI is available ───
 if ! command -v gh &>/dev/null; then
     echo "[0] gh CLI not found. Installing via Homebrew..."
@@ -147,24 +154,16 @@ sed -i '' '/^$/N;/^\n$/d' "$APPCAST"
 echo "  appcast.xml updated with v$VERSION"
 echo "  Download URL: $DOWNLOAD_URL"
 
-# ─── Step 7: Commit & push to current branch ───
-echo "[7/9] Committing and pushing to current branch..."
+# ─── Step 7: Commit & push to dev ───
+echo "[7/9] Committing and pushing to dev..."
 cd "$PROJECT_DIR"
-SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
 git add "$PBXPROJ" "$APPCAST"
 git commit -m "release: v$VERSION"
-git push
-echo "  Committed and pushed to $SOURCE_BRANCH"
+git push origin dev
+echo "  Committed and pushed to dev"
 
 # ─── Step 8: Merge dev to main ───
 echo "[8/9] Merging dev → main..."
-
-if [ "$SOURCE_BRANCH" != "dev" ]; then
-    echo "  Error: This script must be run from the dev branch."
-    echo "  Merge your changes into dev first, then run this script from dev."
-    exit 1
-fi
-
 MAIN_BEFORE=$(git rev-parse main)
 git checkout main
 git pull origin main
@@ -183,19 +182,19 @@ if gh release create "v$VERSION" \
     echo "  GitHub release v$VERSION created with DMG uploaded"
 else
     echo ""
-    echo "  ERROR: GitHub release failed. Rolling back main merge..."
+    echo "  ERROR: GitHub release failed. Rolling back merges..."
     git checkout main
     git reset --hard "$MAIN_BEFORE"
     git push origin main --force
-    echo "  main rolled back to $MAIN_BEFORE"
-    git checkout dev
+    echo "  main rolled back"
+    git checkout "$ORIGINAL_BRANCH"
     echo "  Your changes are still on dev"
     rm -rf "$ARCHIVE_PATH" "$EXPORT_DIR"
     exit 1
 fi
 
-# ─── Cleanup & return to source branch ───
-git checkout "$SOURCE_BRANCH"
+# ─── Cleanup & return to original branch ───
+git checkout "$ORIGINAL_BRANCH"
 rm -rf "$ARCHIVE_PATH" "$EXPORT_DIR"
 
 echo ""
