@@ -1,59 +1,110 @@
 # Notchi
 
-A macOS notch companion that reacts to Claude Code activity in real-time.
+A macOS notch companion that reacts to Claude Code activity in real time.
 
-https://github.com/user-attachments/assets/e417bd40-cae8-47c0-998a-905166cf3513
+Original project: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 
-## What it does
+## 한국어
 
-- Reacts to Claude Code events in real-time (thinking, working, errors, completions)
-- Analyzes conversation sentiment to show emotions (happy, sad, neutral, sob)
-- Click to expand and see session time and usage quota
-- Supports multiple concurrent Claude Code sessions with individual sprites
-- Sound effects for events (optional, auto-muted when terminal is focused)
-- Auto-updates via Sparkle
+### 소개
 
-## Requirements
+Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패니언 앱입니다.
 
-- macOS 15.0+ (Sequoia)
-- MacBook with notch
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) installed
+원작자의 `v1.0.0`을 기반으로, 내 입맛대로 커스텀하고 싶어서 만든 버전입니다.
 
-## Install
+### 원본 프로젝트
 
-1. Download `Notchi-x.x.x.dmg` from the [latest GitHub Release](https://github.com/sk-ruban/notchi/releases/latest)
-2. Open the DMG and drag Notchi to Applications
-3. Launch Notchi — it auto-installs Claude Code hooks on first launch
-4. A macOS keychain popup will appear asking to access Claude Code's cached OAuth token (used for API usage stats). Click **Always Allow** so it won't prompt again on future launches
+- 원본 저장소: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
+- 원작자 버전: `v1.0.0`
+- 현재 커스텀 버전: `v1.2.2`
 
-   <img src="assets/keychain-popup.png" alt="Keychain access popup" width="450">
+### 주요 기능
 
-5. *(Optional)* Click the notch to expand → open Settings → paste your Anthropic API key. This enables sentiment analysis of your prompts so the mascot reacts emotionally
+- Claude Code 이벤트를 실시간으로 감지하고 반응
+- 대화 분위기를 분석해 감정 표현 표시
+- 노치를 클릭해 세션 시간과 사용량 확인
+- 여러 Claude Code 세션을 동시에 표시
+- 사운드 효과 지원
+- Sparkle 기반 자동 업데이트 지원
 
-   <img src="assets/emotion-settings.png" alt="Emotion analysis settings" width="400">
+### 패치 노트
 
-6. Start using Claude Code and watch Notchi react
+#### `v1.2.2` - Update & Deploy
 
-## How it works
+- 업데이트 확인 시 바로 다운로드 가능하도록 설정 버튼 동작 개선
+- 업데이트 체크 후 Checking 상태에서 멈추는 버그 수정
 
-```
-Claude Code --> Hooks (shell scripts) --> Unix Socket --> Event Parser --> State Machine --> Animated Sprites
-```
+#### `v1.2.1` - Settings & Automation
 
-Notchi registers shell script hooks with Claude Code on launch. When Claude Code emits events (tool use, thinking, prompts, session start/end), the hook script sends JSON payloads to a Unix socket. The app parses these events, runs them through a state machine that maps to sprite animations (idle, working, sleeping, compacting, waiting), and uses the Anthropic API to analyze user prompt sentiment for emotional reactions.
+- 설정 화면에 Original Project 버튼 추가 (원작자 저장소 링크)
+- Star on GitHub 버튼을 자체 저장소로 변경
+- 업데이트시 안되는 버그 수정
 
-Each Claude Code session gets its own sprite on the grass island. Clicking expands the notch panel to show a live activity feed, session info, and API usage stats.
 
-## Contributing
+#### `v1.2.0` - Usage & Release
 
-If you have any bugs, ideas, or would like to contribute through pull requests, please check out [Contributing to Notchi](CONTRIBUTING.md).
+- 주간(7일) 사용량 바 추가 (시간당 사용량 아래에 표시)
+- 사용량 바에 기간 라벨 표시 (`5h` / `7d`)
+- 7일 기준 리셋 시간을 일/시간/분 형식으로 표시 (예: `3d 5h 20m`)
+- 업데이트 서명 키 및 피드 URL을 자체 저장소로 변경
 
-## Credits
+#### `v1.1.0` - Notch Fix
 
-- [Claude Island](https://github.com/farouqaldori/claude-island) — design inspiration for the app
-- [Readout](https://readout.org) — design inspiration for [notchi.app](https://notchi.app)
-- [Aseprite](https://www.aseprite.org/) — sprite design
+- `v1.0.0` 원작자 버전을 기반으로 한 커스텀 버전
+- 노치 관련 수정 사항을 반영한 버전
+  - 노치가 없는 환경(외부 모니터)에서 macOS 상단 바에 맞게 자동 조절
+
+## English
+
+### Overview
+
+Notchi is a macOS notch companion app that reacts to Claude Code activity in real time.
+
+This repository contains a customized release based on the original author's `v1.0.0`, created because I wanted a version tailored to my own preferences.
+
+### Upstream Project
+
+- Original repository: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
+- Original author version: `v1.0.0`
+- Current custom version: `v1.2.2`
+
+### Features
+
+- Reacts to Claude Code events in real time
+- Analyzes conversation sentiment for emotional reactions
+- Click the notch to view session time and usage
+- Supports multiple concurrent Claude Code sessions
+- Includes optional sound effects
+- Supports auto-updates via Sparkle
+
+### Patch Notes
+
+#### `v1.2.2` - Update & Deploy
+
+- Improved update button to start download directly when update is available
+- Fixed update check stuck on Checking state
+
+#### `v1.2.1` - Settings & Automation
+
+- Added Original Project button in settings (links to upstream repository)
+- Changed Star on GitHub button to point to own repository
+- Fixed update not detecting new versions
+
+#### `v1.2.0` - Usage & Release
+
+- Added weekly (7-day) usage bar below the hourly usage bar
+- Added period labels (`5h` / `7d`) to each usage bar
+- Weekly reset time displayed in days/hours/minutes format (e.g., `3d 5h 20m`)
+- Migrated update signing key and feed URL to own repository
+
+#### `v1.1.0` - Notch Fix
+
+- Custom release based on the original `v1.0.0`
+- Includes notch-related fixes for this repository
+  - Automatically adjusts to the macOS menu bar in environments without a notch, such as external monitors
 
 ## License
 
-MIT
+This project is licensed under the [MIT License](LICENSE).
+
+Based on the original [sk-ruban/notchi](https://github.com/sk-ruban/notchi), also licensed under MIT.

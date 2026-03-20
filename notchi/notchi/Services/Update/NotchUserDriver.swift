@@ -6,7 +6,10 @@
 //
 
 import Foundation
+import os.log
 import Sparkle
+
+private let logger = Logger(subsystem: "com.ruban.notchi", category: "UpdateDriver")
 
 /// Custom Sparkle user driver that routes all UI to UpdateManager.
 /// Sparkle calls these methods from background threads, so we hop
@@ -25,6 +28,7 @@ nonisolated class NotchUserDriver: NSObject, SPUUserDriver {
     }
 
     nonisolated func showUserInitiatedUpdateCheck(cancellation: @escaping () -> Void) {
+        logger.info("showUserInitiatedUpdateCheck called")
         Task { @MainActor in
             UpdateManager.shared.state = .checking
         }
@@ -39,6 +43,7 @@ nonisolated class NotchUserDriver: NSObject, SPUUserDriver {
     ) {
         let version = appcastItem.displayVersionString
         let releaseNotes = appcastItem.itemDescription
+        logger.info("showUpdateFound: version=\(version)")
 
         Task { @MainActor in
             UpdateManager.shared.updateFound(
@@ -61,6 +66,7 @@ nonisolated class NotchUserDriver: NSObject, SPUUserDriver {
         _ error: Error,
         acknowledgement: @escaping () -> Void
     ) {
+        logger.info("showUpdateNotFound: \(error.localizedDescription)")
         Task { @MainActor in
             UpdateManager.shared.noUpdateFound()
             acknowledgement()
@@ -71,6 +77,7 @@ nonisolated class NotchUserDriver: NSObject, SPUUserDriver {
         _ error: Error,
         acknowledgement: @escaping () -> Void
     ) {
+        logger.error("showUpdaterError: \(error.localizedDescription)")
         Task { @MainActor in
             UpdateManager.shared.updateError(error.localizedDescription)
             acknowledgement()
@@ -137,6 +144,7 @@ nonisolated class NotchUserDriver: NSObject, SPUUserDriver {
     }
 
     nonisolated func dismissUpdateInstallation() {
+        logger.info("dismissUpdateInstallation called")
         Task { @MainActor in
             UpdateManager.shared.sparkleDidDismiss()
         }
@@ -161,6 +169,7 @@ nonisolated class NotchUserDriver: NSObject, SPUUserDriver {
         state: SPUUserUpdateState,
         reply: @escaping (SPUUserUpdateChoice) -> Void
     ) {
+        logger.warning("showInformationalUpdateFound: v\(appcastItem.displayVersionString) — auto-dismissing")
         reply(.dismiss)
     }
 }

@@ -8,6 +8,7 @@ struct UsageBarView: View {
     let isStale: Bool
     let recoveryAction: ClaudeUsageRecoveryAction
     var compact: Bool = false
+    var periodLabel: String? = nil
     var isEnabled: Bool = AppSettings.isUsageEnabled
     var onConnect: (() -> Void)?
     var onRetry: (() -> Void)?
@@ -73,7 +74,7 @@ struct UsageBarView: View {
                                 .foregroundColor(TerminalColors.dimmedText)
                         }
                     }
-                } else if let usage, let resetTime = usage.formattedResetTime {
+                } else if let usage, let resetTime = periodLabel == "7d" ? usage.formattedResetTimeLong : usage.formattedResetTime {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Resets in \(resetTime)")
                             .font(.system(size: 11, weight: .medium))
@@ -98,9 +99,16 @@ struct UsageBarView: View {
                     ProgressView()
                         .controlSize(.mini)
                 } else if usage != nil {
-                    Text("\(effectivePercentage)%")
-                        .font(.system(size: 11, weight: .semibold, design: .monospaced))
-                        .foregroundColor(usageColor)
+                    HStack(spacing: 4) {
+                        Text("\(effectivePercentage)%")
+                            .font(.system(size: 11, weight: .semibold, design: .monospaced))
+                            .foregroundColor(usageColor)
+                        if let periodLabel {
+                            Text(periodLabel)
+                                .font(.system(size: 10, weight: .medium, design: .monospaced))
+                                .foregroundColor(TerminalColors.dimmedText)
+                        }
+                    }
                 }
             }
 

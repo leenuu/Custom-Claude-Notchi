@@ -56,3 +56,6 @@ website/.astro/
 # Temporary
 *.log
 tmp/
+
+# xcode-build-server config
+notchi/buildServer.json

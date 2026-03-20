@@ -55,6 +55,25 @@ struct QuotaPeriod: Decodable {
             return "\(minutes)m"
         }
     }
+
+    var formattedResetTimeLong: String? {
+        guard let resetDate else { return nil }
+        let now = Date()
+        guard resetDate > now else { return nil }
+
+        let interval = Int(resetDate.timeIntervalSince(now))
+        let days = interval / 86400
+        let hours = (interval % 86400) / 3600
+        let minutes = (interval % 3600) / 60
+
+        if days > 0 {
+            return "\(days)d \(hours)h \(minutes)m"
+        } else if hours > 0 {
+            return "\(hours)h \(minutes)m"
+        } else {
+            return "\(minutes)m"
+        }
+    }
 }
 
 extension QuotaPeriod {

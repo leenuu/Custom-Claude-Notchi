@@ -119,9 +119,23 @@ struct ExpandedPanelView: View {
                     statusMessage: usageService.statusMessage,
                     isStale: usageService.isUsageStale,
                     recoveryAction: usageService.recoveryAction,
+                    periodLabel: "5h",
                     onConnect: { ClaudeUsageService.shared.connectAndStartPolling() },
                     onRetry: { ClaudeUsageService.shared.retryNow() }
                 )
+
+                if let weeklyUsage = usageService.weeklyUsage {
+                    UsageBarView(
+                        usage: weeklyUsage,
+                        isLoading: false,
+                        error: nil,
+                        statusMessage: nil,
+                        isStale: usageService.isUsageStale,
+                        recoveryAction: .none,
+                        compact: true,
+                        periodLabel: "7d"
+                    )
+                }
             }
             .padding(.horizontal, 12)
         }
@@ -166,9 +180,23 @@ struct ExpandedPanelView: View {
                     isStale: usageService.isUsageStale,
                     recoveryAction: usageService.recoveryAction,
                     compact: isActivityCollapsed,
+                    periodLabel: "5h",
                     onConnect: { ClaudeUsageService.shared.connectAndStartPolling() },
                     onRetry: { ClaudeUsageService.shared.retryNow() }
                 )
+
+                if let weeklyUsage = usageService.weeklyUsage {
+                    UsageBarView(
+                        usage: weeklyUsage,
+                        isLoading: false,
+                        error: nil,
+                        statusMessage: nil,
+                        isStale: usageService.isUsageStale,
+                        recoveryAction: .none,
+                        compact: isActivityCollapsed,
+                        periodLabel: "7d"
+                    )
+                }
             }
             .padding(.horizontal, 12)
         }

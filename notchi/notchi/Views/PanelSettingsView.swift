@@ -130,9 +130,27 @@ struct PanelSettingsView: View {
 
     private var actionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Button(action: { updateManager.checkForUpdates() }) {
+            Button(action: {
+                switch updateManager.state {
+                case .found:
+                    updateManager.downloadAndInstall()
+                case .readyToInstall:
+                    updateManager.downloadAndInstall()
+                default:
+                    updateManager.checkForUpdates()
+                }
+            }) {
                 SettingsRowView(icon: "arrow.triangle.2.circlepath", title: "Check for Updates") {
                     updateStatusView
+                }
+            }
+            .buttonStyle(.plain)
+
+            Button(action: openOriginalRepo) {
+                SettingsRowView(icon: "person.circle", title: "Original Project") {
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 10))
+                        .foregroundColor(TerminalColors.dimmedText)
                 }
             }
             .buttonStyle(.plain)
@@ -148,8 +166,12 @@ struct PanelSettingsView: View {
         }
     }
 
-    private func openGitHubRepo() {
+    private func openOriginalRepo() {
         NSWorkspace.shared.open(URL(string: "https://github.com/sk-ruban/notchi")!)
+    }
+
+    private func openGitHubRepo() {
+        NSWorkspace.shared.open(URL(string: "https://github.com/leenuu/Custom-Claude-Notchi")!)
     }
 
     private var quitSection: some View {

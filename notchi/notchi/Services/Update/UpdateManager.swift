@@ -1,5 +1,8 @@
 import Combine
+import os.log
 import Sparkle
+
+private let logger = Logger(subsystem: "com.ruban.notchi", category: "UpdateManager")
 
 /// Update state published to UI
 enum UpdateState: Equatable {
@@ -50,7 +53,15 @@ class UpdateManager: NSObject, ObservableObject {
     // MARK: - Public (UI actions)
 
     func checkForUpdates() {
-        guard let updater, updater.canCheckForUpdates else { return }
+        guard let updater else {
+            logger.warning("checkForUpdates: updater is nil")
+            return
+        }
+        guard updater.canCheckForUpdates else {
+            logger.warning("checkForUpdates: canCheckForUpdates is false")
+            return
+        }
+        logger.info("checkForUpdates: starting check, feedURL=\(updater.feedURL?.absoluteString ?? "nil")")
         state = .checking
         updater.checkForUpdates()
     }
