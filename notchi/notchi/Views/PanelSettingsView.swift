@@ -135,6 +135,15 @@ struct PanelSettingsView: View {
             }
             .buttonStyle(.plain)
 
+            Button(action: openOriginalRepo) {
+                SettingsRowView(icon: "person.circle", title: "Original Project") {
+                    Image(systemName: "arrow.up.right")
+                        .font(.system(size: 10))
+                        .foregroundColor(TerminalColors.dimmedText)
+                }
+            }
+            .buttonStyle(.plain)
+
             Button(action: openGitHubRepo) {
                 SettingsRowView(icon: "star", title: "Star on GitHub") {
                     Image(systemName: "arrow.up.right")
@@ -146,8 +155,12 @@ struct PanelSettingsView: View {
         }
     }
 
-    private func openGitHubRepo() {
+    private func openOriginalRepo() {
         NSWorkspace.shared.open(URL(string: "https://github.com/sk-ruban/notchi")!)
+    }
+
+    private func openGitHubRepo() {
+        NSWorkspace.shared.open(URL(string: "https://github.com/leenuu/Custom-Claude-Notchi")!)
     }
 
     private var quitSection: some View {

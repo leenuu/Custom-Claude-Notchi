@@ -50,13 +50,17 @@ if ! gh auth status &>/dev/null; then
 fi
 
 # ─── Step 1: Update version in Xcode project ───
-echo "[1/7] Updating version to $VERSION..."
+echo "[1/9] Updating version to $VERSION..."
 PBXPROJ="$XCODE_PROJECT/project.pbxproj"
 sed -i '' "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" "$PBXPROJ"
+CURRENT_BUILD=$(($(grep -m1 'CURRENT_PROJECT_VERSION' "$PBXPROJ" | tr -dc '0-9')))
+NEW_BUILD=$((CURRENT_BUILD + 1))
+sed -i '' "s/CURRENT_PROJECT_VERSION = .*;/CURRENT_PROJECT_VERSION = $NEW_BUILD;/g" "$PBXPROJ"
 echo "  MARKETING_VERSION → $VERSION"
+echo "  CURRENT_PROJECT_VERSION → $NEW_BUILD"
 
 # ─── Step 2: Build archive ───
-echo "[2/7] Building archive..."
+echo "[2/9] Building archive..."
 ARCHIVE_PATH="$BUILD_DIR/$APP_NAME.xcarchive"
 rm -rf "$ARCHIVE_PATH"
 
@@ -70,7 +74,7 @@ xcodebuild archive \
 echo "  Archive created at $ARCHIVE_PATH"
 
 # ─── Step 3: Export app from archive ───
-echo "[3/7] Exporting app..."
+echo "[3/9] Exporting app..."
 EXPORT_DIR="$BUILD_DIR/export"
 rm -rf "$EXPORT_DIR"
 mkdir -p "$EXPORT_DIR"
@@ -84,7 +88,7 @@ cp -R "$APP_PATH" "$EXPORT_DIR/$APP_NAME.app"
 echo "  App exported to $EXPORT_DIR/$APP_NAME.app"
 
 # ─── Step 4: Create DMG ───
-echo "[4/7] Creating DMG..."
+echo "[4/9] Creating DMG..."
 DMG_PATH="$BUILD_DIR/${APP_NAME}-${VERSION}.dmg"
 rm -f "$DMG_PATH"
 
@@ -99,7 +103,7 @@ hdiutil create \
 echo "  DMG created at $DMG_PATH"
 
 # ─── Step 5: Sign DMG with Sparkle ───
-echo "[5/7] Signing DMG with Sparkle..."
+echo "[5/9] Signing DMG with Sparkle..."
 SPARKLE_SIGN="$(find "$HOME/Library/Developer/Xcode/DerivedData" -path "*/artifacts/sparkle/Sparkle/bin/sign_update" -print -quit 2>/dev/null)"
 
 ED_SIGNATURE=""
@@ -114,7 +118,7 @@ else
 fi
 
 # ─── Step 6: Update appcast.xml ───
-echo "[6/7] Updating appcast.xml..."
+echo "[6/9] Updating appcast.xml..."
 DMG_SIZE=$(stat -f%z "$DMG_PATH")
 PUB_DATE=$(date -R)
 DOWNLOAD_URL="https://github.com/$GITHUB_REPO/releases/download/v$VERSION/${APP_NAME}-${VERSION}.dmg"
@@ -145,18 +149,47 @@ sed -i '' '/^$/N;/^\n$/d' "$APPCAST"
 echo "  appcast.xml updated with v$VERSION"
 echo "  Download URL: $DOWNLOAD_URL"
 
-# ─── Step 7: Create GitHub release ───
-echo "[7/7] Creating GitHub release..."
-gh release create "v$VERSION" \
+# ─── Step 7: Commit & push to current branch ───
+echo "[7/9] Committing and pushing to current branch..."
+cd "$PROJECT_DIR"
+SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+git add "$PBXPROJ" "$APPCAST"
+git commit -m "release: v$VERSION"
+git push
+echo "  Committed and pushed to $SOURCE_BRANCH"
+
+# ─── Step 8: Merge to main & push ───
+echo "[8/9] Merging $SOURCE_BRANCH into main..."
+MAIN_BEFORE=$(git rev-parse main)
+git checkout main
+git merge "$SOURCE_BRANCH" -m "merge: $SOURCE_BRANCH for v$VERSION release"
+git push origin main
+echo "  Merged and pushed to main"
+
+# ─── Step 9: Create GitHub release ───
+echo "[9/9] Creating GitHub release..."
+if gh release create "v$VERSION" \
     "$DMG_PATH" \
     --repo "$GITHUB_REPO" \
     --title "v$VERSION" \
     --notes "$NOTES" \
-    --latest
+    --latest; then
+    echo "  GitHub release v$VERSION created with DMG uploaded"
+else
+    echo ""
+    echo "  ERROR: GitHub release failed. Rolling back main merge..."
+    git checkout main
+    git reset --hard "$MAIN_BEFORE"
+    git push origin main --force
+    git checkout "$SOURCE_BRANCH"
+    echo "  main branch rolled back to $MAIN_BEFORE"
+    echo "  Your changes are still on $SOURCE_BRANCH"
+    rm -rf "$ARCHIVE_PATH" "$EXPORT_DIR"
+    exit 1
+fi
 
-echo "  GitHub release v$VERSION created with DMG uploaded"
-
-# ─── Cleanup ───
+# ─── Cleanup & return to source branch ───
+git checkout "$SOURCE_BRANCH"
 rm -rf "$ARCHIVE_PATH" "$EXPORT_DIR"
 
 echo ""
