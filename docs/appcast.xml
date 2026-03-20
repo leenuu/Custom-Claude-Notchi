@@ -7,6 +7,15 @@
         <language>en</language>
         <!-- Items will be added by generate_appcast -->
         <item>
+            <title>1.2.1</title>
+            <pubDate>Fri, 20 Mar 2026 13:58:59 +0900</pubDate>
+            <sparkle:version>1.2.1</sparkle:version>
+            <sparkle:shortVersionString>1.2.1</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/leenuu/Custom-Claude-Notchi/releases/download/v1.2.1/notchi-1.2.1.dmg" length="3917620" type="application/octet-stream" sparkle:edSignature="aa2wTHBFrYMicYmJRTqU/9YAi2okvxYH/QBSfYnqJQDMIigzgZximqoNVDmL4f1Fd7GO7JBqdxZWeIeMM9fBBA=="/>
+            <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
+        </item>
+        <item>
             <title>1.2</title>
             <pubDate>Fri, 20 Mar 2026 13:35:48 +0900</pubDate>
             <sparkle:version>1.2</sparkle:version>
