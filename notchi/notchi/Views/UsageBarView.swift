@@ -74,7 +74,7 @@ struct UsageBarView: View {
                                 .foregroundColor(TerminalColors.dimmedText)
                         }
                     }
-                } else if let usage, let resetTime = usage.formattedResetTime {
+                } else if let usage, let resetTime = periodLabel == "7d" ? usage.formattedResetTimeLong : usage.formattedResetTime {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Resets in \(resetTime)")
                             .font(.system(size: 11, weight: .medium))
