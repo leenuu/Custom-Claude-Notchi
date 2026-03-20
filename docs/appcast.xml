@@ -2,7 +2,7 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
     <channel>
         <title>Notchi</title>
-        <link>https://updates.notchi.app</link>
+        <link>https://github.com/leenuu/Custom-Claude-Notchi</link>
         <description>Notchi app updates</description>
         <language>en</language>
         <!-- Items will be added by generate_appcast -->

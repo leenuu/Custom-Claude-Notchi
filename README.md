@@ -10,13 +10,13 @@ Original project: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 
 Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패니언 앱입니다.
 
-원작자의 `v1.0.0`을 기반으로, 내 입맛대로 커스텀하고 싶어서 만든 `v1.1.0` notch fix 버전입니다.
+원작자의 `v1.0.0`을 기반으로, 내 입맛대로 커스텀하고 싶어서 만든 버전입니다.
 
 ### 원본 프로젝트
 
 - 원본 저장소: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 - 원작자 버전: `v1.0.0`
-- 현재 커스텀 버전: `v1.1.0`
+- 현재 커스텀 버전: `v1.2.0`
 
 ### 주요 기능
 
@@ -28,6 +28,13 @@ Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패
 - Sparkle 기반 자동 업데이트 지원
 
 ### 패치 노트
+
+#### `v1.2.0` - Usage & Release
+
+- 주간(7일) 사용량 바 추가 (시간당 사용량 아래에 표시)
+- 사용량 바에 기간 라벨 표시 (`5h` / `7d`)
+- 7일 기준 리셋 시간을 일/시간/분 형식으로 표시 (예: `3d 5h 20m`)
+- 업데이트 서명 키 및 피드 URL을 자체 저장소로 변경
 
 #### `v1.1.0` - Notch Fix
 
@@ -41,13 +48,13 @@ Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패
 
 Notchi is a macOS notch companion app that reacts to Claude Code activity in real time.
 
-This repository contains `v1.1.0`, a customized notch fix release based on the original author's `v1.0.0`, created because I wanted a version tailored to my own preferences.
+This repository contains a customized release based on the original author's `v1.0.0`, created because I wanted a version tailored to my own preferences.
 
 ### Upstream Project
 
 - Original repository: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 - Original author version: `v1.0.0`
-- Current custom version: `v1.1.0`
+- Current custom version: `v1.2.0`
 
 ### Features
 
@@ -60,8 +67,21 @@ This repository contains `v1.1.0`, a customized notch fix release based on the o
 
 ### Patch Notes
 
+#### `v1.2.0` - Usage & Release
+
+- Added weekly (7-day) usage bar below the hourly usage bar
+- Added period labels (`5h` / `7d`) to each usage bar
+- Weekly reset time displayed in days/hours/minutes format (e.g., `3d 5h 20m`)
+- Migrated update signing key and feed URL to own repository
+
 #### `v1.1.0` - Notch Fix
 
 - Custom release based on the original `v1.0.0`
 - Includes notch-related fixes for this repository
   - Automatically adjusts to the macOS menu bar in environments without a notch, such as external monitors
+
+## License
+
+This project is licensed under the [MIT License](LICENSE).
+
+Based on the original [sk-ruban/notchi](https://github.com/sk-ruban/notchi), also licensed under MIT.

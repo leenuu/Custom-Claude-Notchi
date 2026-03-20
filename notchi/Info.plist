@@ -5,8 +5,8 @@
 	<key>SUEnableAutomaticChecks</key>
 	<true/>
 	<key>SUFeedURL</key>
-	<string>https://updates.notchi.app/appcast.xml</string>
+	<string>https://raw.githubusercontent.com/leenuu/Custom-Claude-Notchi/main/docs/appcast.xml</string>
 	<key>SUPublicEDKey</key>
-	<string>ZfouVFLXx9vyEimCHW+JWgAtikAq19KsWbig7FkB2QA=</string>
+	<string>vkbhVaCjGG4orsuo0KJ+tYDl9O9C8aNuf4nYiS+6b3M=</string>
 </dict>
 </plist>
