@@ -121,6 +121,7 @@ final class ClaudeUsageService {
     static let shared = ClaudeUsageService()
 
     var currentUsage: QuotaPeriod?
+    var weeklyUsage: QuotaPeriod?
     var isLoading = false
     var error: String?
     var statusMessage: String?
@@ -373,6 +374,7 @@ final class ClaudeUsageService {
             preferHeadersFallback = false
             clearTransientState()
             currentUsage = usageResponse.fiveHour
+            weeklyUsage = usageResponse.sevenDay
             logger.info("Usage fetched via OAuth: \(self.currentUsage?.usagePercentage ?? 0)%")
             schedulePollTimer()
             return .success
