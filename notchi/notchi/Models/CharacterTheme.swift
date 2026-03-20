@@ -1,5 +1,9 @@
 import Foundation
 
+extension Notification.Name {
+    static let characterThemeDidChange = Notification.Name("characterThemeDidChange")
+}
+
 enum CharacterTheme: String, CaseIterable, Identifiable {
     case notchi
     case bocchi

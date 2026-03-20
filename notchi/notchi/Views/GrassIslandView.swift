@@ -150,6 +150,7 @@ private struct GrassSpriteView: View {
     let yOffset: CGFloat
     let totalWidth: CGFloat
     var glowOpacity: Double = 0
+    @State private var character = AppSettings.selectedCharacter
 
     private let swayDuration: Double = 2.0
     private var bobAmplitude: CGFloat {
@@ -182,7 +183,7 @@ private struct GrassSpriteView: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !isAnimatingMotion)) { timeline in
             SpriteSheetView(
-                spriteSheet: state.spriteSheetName,
+                spriteSheet: state.spriteSheetName(for: character),
                 frameCount: state.frameCount,
                 columns: state.columns,
                 fps: state.animationFPS,
@@ -203,6 +204,9 @@ private struct GrassSpriteView: View {
                 x: SpriteLayout.xOffset(xPosition: xPosition, totalWidth: totalWidth) + trembleOffset(at: timeline.date, amplitude: state.emotion == .sob ? Self.sobTrembleAmplitude : 0),
                 y: yOffset + bobOffset(at: timeline.date, duration: bobDuration, amplitude: bobAmplitude)
             )
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .characterThemeDidChange)) { _ in
+            character = AppSettings.selectedCharacter
         }
     }
 }

@@ -17,6 +17,7 @@ struct CharacterPickerView: View {
                     ) {
                         selectedCharacter = theme
                         AppSettings.selectedCharacter = theme
+                        NotificationCenter.default.post(name: .characterThemeDidChange, object: nil)
                     }
                 }
             }
