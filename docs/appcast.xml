@@ -16,10 +16,10 @@
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>
         </item>
         <item>
-            <title>1.2</title>
+            <title>1.2.0</title>
             <pubDate>Fri, 20 Mar 2026 13:35:48 +0900</pubDate>
-            <sparkle:version>1.2</sparkle:version>
-            <sparkle:shortVersionString>1.2</sparkle:shortVersionString>
+            <sparkle:version>1.2.0</sparkle:version>
+            <sparkle:shortVersionString>1.2.0</sparkle:shortVersionString>
             <sparkle:minimumSystemVersion>15.0</sparkle:minimumSystemVersion>
             <enclosure url="https://github.com/leenuu/Custom-Claude-Notchi/releases/download/v1.2/notchi-1.2.dmg" length="3917756" type="application/octet-stream" sparkle:edSignature="bmGPS0d82+79DogzsO1N2s/XCrT15lCq3BKDPZsd0p73HVSJECpbq9F9CNJewmsuceXpsDwJ93ZV3N/6Y8yfDw=="/>
             <sparkle:hardwareRequirements>arm64</sparkle:hardwareRequirements>

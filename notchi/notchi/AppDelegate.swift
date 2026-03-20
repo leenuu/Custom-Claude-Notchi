@@ -1,6 +1,9 @@
 import AppKit
+import os.log
 import Sparkle
 import SwiftUI
+
+private let logger = Logger(subsystem: "com.ruban.notchi", category: "AppDelegate")
 
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private var notchPanel: NotchPanel?
@@ -25,8 +28,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         do {
             try updater.start()
             updaterStarted = true
+            logger.info("Sparkle updater started successfully")
+            logger.info("Feed URL: \(self.updater.feedURL?.absoluteString ?? "nil")")
+            logger.info("canCheckForUpdates: \(self.updater.canCheckForUpdates)")
         } catch {
-            print("Failed to start Sparkle updater: \(error)")
+            logger.error("Failed to start Sparkle updater: \(error.localizedDescription)")
         }
     }
 
@@ -37,7 +43,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         startHookServices()
         startUsageService()
         if updaterStarted {
+            logger.info("Triggering update check on launch")
             updater.checkForUpdates()
+        } else {
+            logger.warning("Updater not started, skipping update check")
         }
     }
 

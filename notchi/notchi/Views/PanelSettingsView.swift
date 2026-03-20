@@ -128,7 +128,16 @@ struct PanelSettingsView: View {
 
     private var actionsSection: some View {
         VStack(alignment: .leading, spacing: 12) {
-            Button(action: { updateManager.checkForUpdates() }) {
+            Button(action: {
+                switch updateManager.state {
+                case .found:
+                    updateManager.downloadAndInstall()
+                case .readyToInstall:
+                    updateManager.downloadAndInstall()
+                default:
+                    updateManager.checkForUpdates()
+                }
+            }) {
                 SettingsRowView(icon: "arrow.triangle.2.circlepath", title: "Check for Updates") {
                     updateStatusView
                 }

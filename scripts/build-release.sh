@@ -53,11 +53,9 @@ fi
 echo "[1/9] Updating version to $VERSION..."
 PBXPROJ="$XCODE_PROJECT/project.pbxproj"
 sed -i '' "s/MARKETING_VERSION = .*;/MARKETING_VERSION = $VERSION;/g" "$PBXPROJ"
-CURRENT_BUILD=$(($(grep -m1 'CURRENT_PROJECT_VERSION' "$PBXPROJ" | tr -dc '0-9')))
-NEW_BUILD=$((CURRENT_BUILD + 1))
-sed -i '' "s/CURRENT_PROJECT_VERSION = .*;/CURRENT_PROJECT_VERSION = $NEW_BUILD;/g" "$PBXPROJ"
+sed -i '' "s/CURRENT_PROJECT_VERSION = .*;/CURRENT_PROJECT_VERSION = $VERSION;/g" "$PBXPROJ"
 echo "  MARKETING_VERSION → $VERSION"
-echo "  CURRENT_PROJECT_VERSION → $NEW_BUILD"
+echo "  CURRENT_PROJECT_VERSION → $VERSION"
 
 # ─── Step 2: Build archive ───
 echo "[2/9] Building archive..."
@@ -158,13 +156,21 @@ git commit -m "release: v$VERSION"
 git push
 echo "  Committed and pushed to $SOURCE_BRANCH"
 
-# ─── Step 8: Merge to main & push ───
-echo "[8/9] Merging $SOURCE_BRANCH into main..."
+# ─── Step 8: Merge dev to main ───
+echo "[8/9] Merging dev → main..."
+
+if [ "$SOURCE_BRANCH" != "dev" ]; then
+    echo "  Error: This script must be run from the dev branch."
+    echo "  Merge your changes into dev first, then run this script from dev."
+    exit 1
+fi
+
 MAIN_BEFORE=$(git rev-parse main)
 git checkout main
-git merge "$SOURCE_BRANCH" -m "merge: $SOURCE_BRANCH for v$VERSION release"
+git pull origin main
+git merge dev -m "merge: dev into main for v$VERSION release"
 git push origin main
-echo "  Merged and pushed to main"
+echo "  Merged dev → main"
 
 # ─── Step 9: Create GitHub release ───
 echo "[9/9] Creating GitHub release..."
@@ -181,9 +187,9 @@ else
     git checkout main
     git reset --hard "$MAIN_BEFORE"
     git push origin main --force
-    git checkout "$SOURCE_BRANCH"
-    echo "  main branch rolled back to $MAIN_BEFORE"
-    echo "  Your changes are still on $SOURCE_BRANCH"
+    echo "  main rolled back to $MAIN_BEFORE"
+    git checkout dev
+    echo "  Your changes are still on dev"
     rm -rf "$ARCHIVE_PATH" "$EXPORT_DIR"
     exit 1
 fi
