@@ -16,7 +16,7 @@ Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패
 
 - 원본 저장소: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 - 원작자 버전: `v1.0.0`
-- 현재 커스텀 버전: `v1.2.1`
+- 현재 커스텀 버전: `v1.2.2`
 
 ### 주요 기능
 
@@ -28,6 +28,11 @@ Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패
 - Sparkle 기반 자동 업데이트 지원
 
 ### 패치 노트
+
+#### `v1.2.2` - Update & Deploy
+
+- 업데이트 확인 시 바로 다운로드 가능하도록 설정 버튼 동작 개선
+- 업데이트 체크 후 Checking 상태에서 멈추는 버그 수정
 
 #### `v1.2.1` - Settings & Automation
 
@@ -61,7 +66,7 @@ This repository contains a customized release based on the original author's `v1
 
 - Original repository: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 - Original author version: `v1.0.0`
-- Current custom version: `v1.2.1`
+- Current custom version: `v1.2.2`
 
 ### Features
 
@@ -73,6 +78,11 @@ This repository contains a customized release based on the original author's `v1
 - Supports auto-updates via Sparkle
 
 ### Patch Notes
+
+#### `v1.2.2` - Update & Deploy
+
+- Improved update button to start download directly when update is available
+- Fixed update check stuck on Checking state
 
 #### `v1.2.1` - Settings & Automation
 
