@@ -194,7 +194,14 @@ private struct GrassSpriteView: View {
     let yOffset: CGFloat
     let totalWidth: CGFloat
     var glowOpacity: Double = 0
+    var dragOffset: CGSize = .zero
+    var isDragging: Bool = false
     @State private var character = AppSettings.selectedCharacter
+
+    private static let draggingSpriteSheet = "notchi_dragging"
+    private static let draggingFrameCount = 6
+    private static let draggingColumns = 6
+    private static let draggingFPS: Double = 8.0
 
     private let swayDuration: Double = 2.0
     private var bobAmplitude: CGFloat {
@@ -225,7 +232,7 @@ private struct GrassSpriteView: View {
     private static let sobTrembleAmplitude: CGFloat = 0.3
 
     private var activeSpriteSheet: String {
-        isDragging ? Self.draggingSpriteSheet : state.spriteSheetName
+        isDragging ? Self.draggingSpriteSheet : state.spriteSheetName(for: character)
     }
 
     private var activeFrameCount: Int {
@@ -243,10 +250,10 @@ private struct GrassSpriteView: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !isAnimatingMotion && !isDragging)) { timeline in
             SpriteSheetView(
-                spriteSheet: state.spriteSheetName(for: character),
-                frameCount: state.frameCount,
-                columns: state.columns,
-                fps: state.animationFPS,
+                spriteSheet: activeSpriteSheet,
+                frameCount: activeFrameCount,
+                columns: activeColumns,
+                fps: activeFPS,
                 isAnimating: true
             )
             .frame(width: SpriteLayout.size, height: SpriteLayout.size)

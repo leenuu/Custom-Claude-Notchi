@@ -6,6 +6,8 @@ struct PanelSettingsView: View {
     @State private var hooksInstalled = HookInstaller.isInstalled()
     @State private var hooksError = false
     @State private var apiKeyInput = AppSettings.anthropicApiKey ?? ""
+    @State private var notchScreenStyle = AppSettings.notchScreenStyle
+    @State private var nonNotchScreenStyle = AppSettings.nonNotchScreenStyle
     @ObservedObject private var updateManager = UpdateManager.shared
     private var usageConnected: Bool { ClaudeUsageService.shared.isConnected }
     private var hasApiKey: Bool { !apiKeyInput.isEmpty }
@@ -45,6 +47,30 @@ struct PanelSettingsView: View {
 
     private var displaySection: some View {
         VStack(alignment: .leading, spacing: 12) {
+            SettingsRowView(icon: "rectangle.topthird.inset.filled", title: "Notch Display") {
+                Picker("", selection: $notchScreenStyle) {
+                    Text("Notch").tag(PanelStyle.notch)
+                    Text("Island").tag(PanelStyle.island)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 140)
+                .onChange(of: notchScreenStyle) { _, newValue in
+                    AppSettings.notchScreenStyle = newValue
+                }
+            }
+
+            SettingsRowView(icon: "display", title: "External Display") {
+                Picker("", selection: $nonNotchScreenStyle) {
+                    Text("Notch").tag(PanelStyle.notch)
+                    Text("Island").tag(PanelStyle.island)
+                }
+                .pickerStyle(.segmented)
+                .frame(width: 140)
+                .onChange(of: nonNotchScreenStyle) { _, newValue in
+                    AppSettings.nonNotchScreenStyle = newValue
+                }
+            }
+
             CharacterPickerView()
 
             ScreenPickerRow(screenSelector: ScreenSelector.shared)
