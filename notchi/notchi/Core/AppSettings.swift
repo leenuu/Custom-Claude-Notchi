@@ -1,11 +1,31 @@
 import Foundation
 
+enum PanelStyle: String, CaseIterable {
+    case notch
+    case island
+}
+
 struct AppSettings {
     private static let notificationSoundKey = "notificationSound"
     private static let isMutedKey = "isMuted"
     private static let previousSoundKey = "previousNotificationSound"
     private static let isUsageEnabledKey = "isUsageEnabled"
     private static let selectedCharacterKey = "selectedCharacter"
+    private static let panelStyleKey = "panelStyle"
+
+    static var panelStyle: PanelStyle {
+        get {
+            guard let rawValue = UserDefaults.standard.string(forKey: panelStyleKey),
+                  let style = PanelStyle(rawValue: rawValue) else {
+                return .notch
+            }
+            return style
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: panelStyleKey)
+            NotificationCenter.default.post(name: .panelStyleDidChange, object: nil)
+        }
+    }
 
     static var isUsageEnabled: Bool {
         get { UserDefaults.standard.bool(forKey: isUsageEnabledKey) }

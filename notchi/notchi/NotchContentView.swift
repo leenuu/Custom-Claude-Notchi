@@ -7,6 +7,7 @@ enum NotchConstants {
 
 extension Notification.Name {
     static let notchiShouldCollapse = Notification.Name("notchiShouldCollapse")
+    static let panelStyleDidChange = Notification.Name("panelStyleDidChange")
 }
 
 private let cornerRadiusInsets = (
