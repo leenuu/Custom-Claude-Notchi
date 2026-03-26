@@ -93,14 +93,15 @@ struct NotchiState: Equatable {
     var emotion: NotchiEmotion = .neutral
 
     /// Resolves the sprite sheet name with fallback chain: exact emotion -> sad (for sob) -> neutral.
-    var spriteSheetName: String {
-        let name = "\(task.spritePrefix)_\(emotion.rawValue)"
+    func spriteSheetName(for character: CharacterTheme = AppSettings.selectedCharacter) -> String {
+        let prefix = character.spritePrefix
+        let name = "\(prefix)_\(task.spritePrefix)_\(emotion.rawValue)"
         if NSImage(named: name) != nil { return name }
         if emotion == .sob {
-            let sadName = "\(task.spritePrefix)_sad"
+            let sadName = "\(prefix)_\(task.spritePrefix)_sad"
             if NSImage(named: sadName) != nil { return sadName }
         }
-        return "\(task.spritePrefix)_neutral"
+        return "\(prefix)_\(task.spritePrefix)_neutral"
     }
     var animationFPS: Double { task.animationFPS }
     var bobDuration: Double { task.bobDuration }
