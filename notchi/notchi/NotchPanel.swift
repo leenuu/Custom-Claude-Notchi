@@ -12,10 +12,17 @@ final class NotchPanel: NSPanel {
 
         isFloatingPanel = true
         becomesKeyOnlyIfNeeded = true
-        
-        print(hasNotch)
 
-        if hasNotch {
+        let isIsland = AppSettings.panelStyleFor(hasNotch: hasNotch) == .island
+
+        if isIsland {
+            level = .statusBar
+            collectionBehavior = [
+                .fullScreenAuxiliary,
+                .canJoinAllSpaces,
+                .ignoresCycle
+            ]
+        } else if hasNotch {
             level = .mainMenu + 3
             collectionBehavior = [
                 .fullScreenAuxiliary,

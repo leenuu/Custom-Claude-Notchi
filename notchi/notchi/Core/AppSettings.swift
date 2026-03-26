@@ -12,18 +12,66 @@ struct AppSettings {
     private static let isUsageEnabledKey = "isUsageEnabled"
     private static let selectedCharacterKey = "selectedCharacter"
     private static let panelStyleKey = "panelStyle"
+    private static let notchScreenStyleKey = "notchScreenPanelStyle"
+    private static let nonNotchScreenStyleKey = "nonNotchScreenPanelStyle"
+    private static let islandOffsetXKey = "islandOffsetX"
+    private static let islandOffsetYKey = "islandOffsetY"
 
+    /// Legacy single style (kept for migration)
     static var panelStyle: PanelStyle {
+        get { panelStyleFor(hasNotch: ScreenSelector.shared.selectedScreen?.hasNotch ?? false) }
+        set {
+            // Update both when set generically
+            let screen = ScreenSelector.shared.selectedScreen
+            if screen?.hasNotch == true {
+                notchScreenStyle = newValue
+            } else {
+                nonNotchScreenStyle = newValue
+            }
+        }
+    }
+
+    static var notchScreenStyle: PanelStyle {
         get {
-            guard let rawValue = UserDefaults.standard.string(forKey: panelStyleKey),
+            guard let rawValue = UserDefaults.standard.string(forKey: notchScreenStyleKey),
                   let style = PanelStyle(rawValue: rawValue) else {
                 return .notch
             }
             return style
         }
         set {
-            UserDefaults.standard.set(newValue.rawValue, forKey: panelStyleKey)
+            UserDefaults.standard.set(newValue.rawValue, forKey: notchScreenStyleKey)
             NotificationCenter.default.post(name: .panelStyleDidChange, object: nil)
+        }
+    }
+
+    static var nonNotchScreenStyle: PanelStyle {
+        get {
+            guard let rawValue = UserDefaults.standard.string(forKey: nonNotchScreenStyleKey),
+                  let style = PanelStyle(rawValue: rawValue) else {
+                return .notch
+            }
+            return style
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: nonNotchScreenStyleKey)
+            NotificationCenter.default.post(name: .panelStyleDidChange, object: nil)
+        }
+    }
+
+    static func panelStyleFor(hasNotch: Bool) -> PanelStyle {
+        hasNotch ? notchScreenStyle : nonNotchScreenStyle
+    }
+
+    static var islandOffset: CGPoint {
+        get {
+            let x = UserDefaults.standard.double(forKey: islandOffsetXKey)
+            let y = UserDefaults.standard.double(forKey: islandOffsetYKey)
+            return CGPoint(x: x, y: y)
+        }
+        set {
+            UserDefaults.standard.set(newValue.x, forKey: islandOffsetXKey)
+            UserDefaults.standard.set(newValue.y, forKey: islandOffsetYKey)
         }
     }
 
