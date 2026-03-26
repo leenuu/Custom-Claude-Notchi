@@ -45,6 +45,8 @@ struct PanelSettingsView: View {
 
     private var displaySection: some View {
         VStack(alignment: .leading, spacing: 12) {
+            CharacterPickerView()
+
             ScreenPickerRow(screenSelector: ScreenSelector.shared)
 
             SoundPickerView()

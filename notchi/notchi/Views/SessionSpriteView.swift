@@ -4,6 +4,7 @@ struct SessionSpriteView: View {
     let state: NotchiState
     let isSelected: Bool
     var size: CGFloat = 32
+    @State private var character = AppSettings.selectedCharacter
 
     private var bobAmplitude: CGFloat {
         guard state.bobAmplitude > 0 else { return 0 }
@@ -15,7 +16,7 @@ struct SessionSpriteView: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: bobAmplitude == 0 && state.emotion != .sob)) { timeline in
             SpriteSheetView(
-                spriteSheet: state.spriteSheetName,
+                spriteSheet: state.spriteSheetName(for: character),
                 frameCount: state.frameCount,
                 columns: state.columns,
                 fps: state.animationFPS,
@@ -26,6 +27,9 @@ struct SessionSpriteView: View {
                 x: trembleOffset(at: timeline.date, amplitude: state.emotion == .sob ? Self.sobTrembleAmplitude : 0),
                 y: bobOffset(at: timeline.date, duration: state.bobDuration, amplitude: bobAmplitude)
             )
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .characterThemeDidChange)) { _ in
+            character = AppSettings.selectedCharacter
         }
     }
 }

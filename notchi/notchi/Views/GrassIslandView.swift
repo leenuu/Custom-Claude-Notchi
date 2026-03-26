@@ -194,13 +194,7 @@ private struct GrassSpriteView: View {
     let yOffset: CGFloat
     let totalWidth: CGFloat
     var glowOpacity: Double = 0
-    var dragOffset: CGSize = .zero
-    var isDragging: Bool = false
-
-    private static let draggingSpriteSheet = "dragging"
-    private static let draggingFrameCount = 6
-    private static let draggingColumns = 6
-    private static let draggingFPS: Double = 8.0
+    @State private var character = AppSettings.selectedCharacter
 
     private let swayDuration: Double = 2.0
     private var bobAmplitude: CGFloat {
@@ -249,10 +243,10 @@ private struct GrassSpriteView: View {
     var body: some View {
         TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !isAnimatingMotion && !isDragging)) { timeline in
             SpriteSheetView(
-                spriteSheet: activeSpriteSheet,
-                frameCount: activeFrameCount,
-                columns: activeColumns,
-                fps: activeFPS,
+                spriteSheet: state.spriteSheetName(for: character),
+                frameCount: state.frameCount,
+                columns: state.columns,
+                fps: state.animationFPS,
                 isAnimating: true
             )
             .frame(width: SpriteLayout.size, height: SpriteLayout.size)
@@ -270,6 +264,9 @@ private struct GrassSpriteView: View {
                 x: SpriteLayout.xOffset(xPosition: xPosition, totalWidth: totalWidth) + dragOffset.width + trembleOffset(at: timeline.date, amplitude: state.emotion == .sob ? Self.sobTrembleAmplitude : 0),
                 y: yOffset + dragOffset.height + bobOffset(at: timeline.date, duration: bobDuration, amplitude: isDragging ? 0 : bobAmplitude)
             )
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .characterThemeDidChange)) { _ in
+            character = AppSettings.selectedCharacter
         }
     }
 }
