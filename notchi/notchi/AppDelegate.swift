@@ -40,6 +40,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         NSApplication.shared.setActivationPolicy(.accessory)
         setupNotchWindow()
         observeScreenChanges()
+        observeWakeNotifications()
         startHookServices()
         startUsageService()
         if updaterStarted {
@@ -97,6 +98,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             name: NSApplication.didChangeScreenParametersNotification,
             object: nil
         )
+    }
+
+    private func observeWakeNotifications() {
+        NSWorkspace.shared.notificationCenter.addObserver(
+            self,
+            selector: #selector(handleSystemWake),
+            name: NSWorkspace.didWakeNotification,
+            object: nil
+        )
+    }
+
+    @objc private func handleSystemWake() {
+        MainActor.assumeIsolated {
+            logger.info("System woke, restarting Claude usage polling")
+            ClaudeUsageService.shared.startPolling()
+        }
     }
 
     @objc private func repositionWindow() {

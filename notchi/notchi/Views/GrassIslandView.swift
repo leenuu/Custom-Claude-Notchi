@@ -40,16 +40,16 @@ struct GrassIslandView: View {
                 .frame(width: geometry.size.width, alignment: .leading)
                 .drawingGroup()
 
-                if sessions.isEmpty {
-                    GrassSpriteView(state: .idle, xPosition: 0.5, yOffset: -15, totalWidth: geometry.size.width, glowOpacity: 0)
-                } else {
+                if !sessions.isEmpty {
                     ForEach(SpriteLayout.depthSorted(sessions)) { session in
                         GrassSpriteView(
                             state: session.state,
                             xPosition: session.spriteXPosition,
                             yOffset: session.spriteYOffset,
                             totalWidth: geometry.size.width,
-                            glowOpacity: glowOpacity(for: session.id)
+                            glowOpacity: glowOpacity(for: session.id),
+                            dragOffset: session.dragOffset,
+                            isDragging: session.isDragging
                         )
                     }
                 }
@@ -87,10 +87,11 @@ struct GrassTapOverlay: View {
                 if !sessions.isEmpty {
                     ForEach(SpriteLayout.depthSorted(sessions)) { session in
                         SpriteTapTarget(
-                            sessionId: session.id,
+                            session: session,
                             xPosition: session.spriteXPosition,
                             yOffset: session.spriteYOffset,
                             totalWidth: geometry.size.width,
+                            grassSize: geometry.size,
                             hoveredSessionId: $hoveredSessionId,
                             onTap: { onSelectSession?(session.id) }
                         )
@@ -98,6 +99,7 @@ struct GrassTapOverlay: View {
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height, alignment: .bottom)
+            .coordinateSpace(name: "grassArea")
         }
     }
 }
@@ -111,27 +113,69 @@ private struct NoHighlightButtonStyle: ButtonStyle {
 }
 
 private struct SpriteTapTarget: View {
-    let sessionId: String
+    let session: SessionData
     let xPosition: CGFloat
     let yOffset: CGFloat
     let totalWidth: CGFloat
+    let grassSize: CGSize
     @Binding var hoveredSessionId: String?
     var onTap: (() -> Void)?
 
     @State private var tapScale: CGFloat = 1.0
+    @State private var isDragging = false
+    @State private var dragStart: CGSize = .zero
 
     var body: some View {
-        Button(action: handleTap) {
-            Color.clear
-                .frame(width: SpriteLayout.size, height: SpriteLayout.size)
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(NoHighlightButtonStyle())
-        .onHover { hovering in
-            hoveredSessionId = hovering ? sessionId : nil
-        }
-        .scaleEffect(tapScale)
-        .offset(x: SpriteLayout.xOffset(xPosition: xPosition, totalWidth: totalWidth), y: yOffset)
+        Rectangle()
+            .fill(Color.white.opacity(0.001))
+            .frame(width: SpriteLayout.size, height: SpriteLayout.size)
+            .contentShape(Rectangle())
+            .scaleEffect(tapScale)
+            .onHover { hovering in
+                hoveredSessionId = hovering ? session.id : nil
+            }
+            .offset(
+                x: SpriteLayout.xOffset(xPosition: xPosition, totalWidth: totalWidth) + session.dragOffset.width,
+                y: yOffset + session.dragOffset.height
+            )
+            .highPriorityGesture(
+                DragGesture(minimumDistance: 5, coordinateSpace: .named("grassArea"))
+                    .onChanged { value in
+                        if !isDragging {
+                            isDragging = true
+                            dragStart = session.dragOffset
+                            session.isDragging = true
+                        }
+                        let proposed = CGSize(
+                            width: dragStart.width + value.translation.width,
+                            height: dragStart.height + value.translation.height
+                        )
+                        session.dragOffset = clampedOffset(proposed)
+                    }
+                    .onEnded { _ in
+                        isDragging = false
+                        session.isDragging = false
+                    }
+            )
+            .onTapGesture {
+                handleTap()
+            }
+    }
+
+    private func clampedOffset(_ proposed: CGSize) -> CGSize {
+        let baseX = SpriteLayout.xOffset(xPosition: xPosition, totalWidth: totalWidth)
+        let spriteHalf = SpriteLayout.size / 2
+
+        let minX = -(totalWidth / 2) + spriteHalf - baseX
+        let maxX = (totalWidth / 2) - spriteHalf - baseX
+
+        let minY = -(grassSize.height) - yOffset + spriteHalf
+        let maxY = -yOffset - spriteHalf
+
+        return CGSize(
+            width: min(max(proposed.width, minX), maxX),
+            height: min(max(proposed.height, minY), maxY)
+        )
     }
 
     private func handleTap() {
@@ -180,8 +224,24 @@ private struct GrassSpriteView: View {
 
     private static let sobTrembleAmplitude: CGFloat = 0.3
 
+    private var activeSpriteSheet: String {
+        isDragging ? Self.draggingSpriteSheet : state.spriteSheetName
+    }
+
+    private var activeFrameCount: Int {
+        isDragging ? Self.draggingFrameCount : state.frameCount
+    }
+
+    private var activeColumns: Int {
+        isDragging ? Self.draggingColumns : state.columns
+    }
+
+    private var activeFPS: Double {
+        isDragging ? Self.draggingFPS : state.animationFPS
+    }
+
     var body: some View {
-        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !isAnimatingMotion)) { timeline in
+        TimelineView(.animation(minimumInterval: 1.0 / 30, paused: !isAnimatingMotion && !isDragging)) { timeline in
             SpriteSheetView(
                 spriteSheet: state.spriteSheetName(for: character),
                 frameCount: state.frameCount,
@@ -191,7 +251,7 @@ private struct GrassSpriteView: View {
             )
             .frame(width: SpriteLayout.size, height: SpriteLayout.size)
             .background(alignment: .bottom) {
-                if glowOpacity > 0 {
+                if glowOpacity > 0 && !isDragging {
                     Ellipse()
                         .fill(glowColor.opacity(glowOpacity))
                         .frame(width: SpriteLayout.size * 0.85, height: SpriteLayout.size * 0.25)
@@ -199,10 +259,10 @@ private struct GrassSpriteView: View {
                         .offset(y: 4)
                 }
             }
-            .rotationEffect(.degrees(swayDegrees(at: timeline.date)), anchor: .bottom)
+            .rotationEffect(.degrees(isDragging ? 0 : swayDegrees(at: timeline.date)), anchor: .bottom)
             .offset(
-                x: SpriteLayout.xOffset(xPosition: xPosition, totalWidth: totalWidth) + trembleOffset(at: timeline.date, amplitude: state.emotion == .sob ? Self.sobTrembleAmplitude : 0),
-                y: yOffset + bobOffset(at: timeline.date, duration: bobDuration, amplitude: bobAmplitude)
+                x: SpriteLayout.xOffset(xPosition: xPosition, totalWidth: totalWidth) + dragOffset.width + trembleOffset(at: timeline.date, amplitude: state.emotion == .sob ? Self.sobTrembleAmplitude : 0),
+                y: yOffset + dragOffset.height + bobOffset(at: timeline.date, duration: bobDuration, amplitude: isDragging ? 0 : bobAmplitude)
             )
         }
         .onReceive(NotificationCenter.default.publisher(for: .characterThemeDidChange)) { _ in

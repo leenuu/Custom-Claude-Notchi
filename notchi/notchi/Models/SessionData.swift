@@ -1,3 +1,4 @@
+import CoreGraphics
 import Foundation
 import os.log
 
@@ -19,6 +20,9 @@ final class SessionData: Identifiable {
     let spriteXPosition: CGFloat
     let spriteYOffset: CGFloat
     let isInteractive: Bool
+
+    var dragOffset: CGSize = .zero
+    var isDragging: Bool = false
 
     private(set) var task: NotchiTask = .idle
     let emotionState = EmotionState()
@@ -81,7 +85,7 @@ final class SessionData: Identifiable {
     private static let xCollisionRetries = 10
     private static let xNudgeStep: CGFloat = 0.23
 
-    private static let yOffsetBase: CGFloat = -5.0
+    private static let yOffsetBase: CGFloat = -40.0
     private static let yOffsetRange: UInt = 51
 
     init(sessionId: String, cwd: String, sessionNumber: Int, isInteractive: Bool = true, existingXPositions: [CGFloat] = []) {
