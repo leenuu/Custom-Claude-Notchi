@@ -16,7 +16,7 @@ Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패
 
 - 원본 저장소: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 - 원작자 버전: `v1.0.0`
-- 현재 커스텀 버전: `v1.2.2`
+- 현재 커스텀 버전: `v1.3.0`
 
 ### 주요 기능
 
@@ -28,6 +28,14 @@ Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패
 - Sparkle 기반 자동 업데이트 지원
 
 ### 패치 노트
+
+#### `v1.3.0` - Character Theme
+
+- 캐릭터 테마(`CharacterTheme`) 및 설정에 선택값 저장
+- 스프라이트 시트 이름에 테마 접두어 적용
+- 설정 패널에 캐릭터 선택 UI(썸네일 애니메이션)
+- 복치(Bocchi)용 플레이스홀더 스프라이트 에셋 추가
+- 테마 변경 시 스프라이트 뷰가 즉시 반응하도록 수정
 
 #### `v1.2.2` - Update & Deploy
 
@@ -66,7 +74,7 @@ This repository contains a customized release based on the original author's `v1
 
 - Original repository: [sk-ruban/notchi](https://github.com/sk-ruban/notchi)
 - Original author version: `v1.0.0`
-- Current custom version: `v1.2.2`
+- Current custom version: `v1.3.0`
 
 ### Features
 
@@ -78,6 +86,14 @@ This repository contains a customized release based on the original author's `v1
 - Supports auto-updates via Sparkle
 
 ### Patch Notes
+
+#### `v1.3.0` - Character Theme
+
+- `CharacterTheme` enum and persisted selection in app settings
+- Theme prefix in sprite sheet resolution
+- Character picker in settings panel with animated thumbnails
+- Bocchi placeholder sprite assets
+- Sprite views refresh when the character theme changes
 
 #### `v1.2.2` - Update & Deploy
 
