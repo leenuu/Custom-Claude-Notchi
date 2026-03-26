@@ -259,20 +259,15 @@ struct NotchContentView: View {
     @ViewBuilder
     private var headerSprites: some View {
         if panelManager.hasNotch {
-            let topSession = sessionStore.sortedSessions.first
-            SessionSpriteView(
-                state: topSession?.state ?? .idle,
-                isSelected: true
-            )
+            if let topSession = sessionStore.sortedSessions.first {
+                SessionSpriteView(
+                    state: topSession.state,
+                    isSelected: true
+                )
+            }
         } else {
             let sessions = Array(sessionStore.sortedSessions.prefix(5))
-            if sessions.isEmpty {
-                SessionSpriteView(
-                    state: .idle,
-                    isSelected: true,
-                    size: compactHeaderSpriteSize
-                )
-            } else {
+            if !sessions.isEmpty {
                 HStack(spacing: compactHeaderSpriteSpacing) {
                     ForEach(sessions) { session in
                         SessionSpriteView(
