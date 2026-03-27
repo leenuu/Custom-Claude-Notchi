@@ -7,6 +7,7 @@ enum NotchConstants {
 
 extension Notification.Name {
     static let notchiShouldCollapse = Notification.Name("notchiShouldCollapse")
+    static let panelStyleDidChange = Notification.Name("panelStyleDidChange")
 }
 
 private let cornerRadiusInsets = (
@@ -23,6 +24,10 @@ struct NotchContentView: View {
     @State private var isMuted = AppSettings.isMuted
     @State private var isActivityCollapsed = false
     @State private var hoveredSessionId: String?
+    @State private var islandDragStart: CGPoint = .zero
+    @State private var isDraggingIsland = false
+    @State private var islandSavedOffset: CGPoint = AppSettings.islandOffset
+    @State private var islandDragDelta: CGSize = .zero
 
     private var sessionStore: SessionStore {
         stateMachine.sessionStore
@@ -30,6 +35,7 @@ struct NotchContentView: View {
 
     private var notchSize: CGSize { panelManager.notchSize }
     private var isExpanded: Bool { panelManager.isExpanded }
+    private var isIslandMode: Bool { panelManager.isIslandMode }
 
     private var panelAnimation: Animation {
         isExpanded
@@ -47,6 +53,20 @@ struct NotchContentView: View {
 
     private var compactHeaderSpriteSpacing: CGFloat {
         compactHeaderSpriteSize < 24 ? 4 : 6
+    }
+
+    private var islandCornerRadius: CGFloat {
+        isExpanded ? 20 : 18
+    }
+
+    private var islandTopPadding: CGFloat {
+        guard isIslandMode, let screen = ScreenSelector.shared.selectedScreen else { return 0 }
+        return screen.menuBarHeight + 6 - islandSavedOffset.y
+    }
+
+    private var islandLeadingOffset: CGFloat {
+        guard isIslandMode else { return 0 }
+        return islandSavedOffset.x
     }
 
     private var topCornerRadius: CGFloat {
@@ -77,7 +97,7 @@ struct NotchContentView: View {
         VStack(spacing: 0) {
             notchLayout
         }
-        .padding(.horizontal, isExpanded ? cornerRadiusInsets.opened.top : cornerRadiusInsets.closed.bottom)
+        .padding(.horizontal, isIslandMode ? 0 : (isExpanded ? cornerRadiusInsets.opened.top : cornerRadiusInsets.closed.bottom))
         .padding(.bottom, isExpanded ? 12 : 0)
         .background {
             ZStack(alignment: .top) {
@@ -119,15 +139,17 @@ struct NotchContentView: View {
                 .padding(.trailing, 30)
             }
         }
-        .clipShape(NotchShape(
+        .modifier(PanelClipModifier(
+            isIslandMode: isIslandMode,
+            islandCornerRadius: islandCornerRadius,
             topCornerRadius: topCornerRadius,
-            bottomCornerRadius: bottomCornerRadius
+            bottomCornerRadius: bottomCornerRadius,
+            isExpanded: isExpanded
         ))
-        .shadow(
-            color: isExpanded ? .black.opacity(0.7) : .clear,
-            radius: 6
-        )
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(.top, islandTopPadding)
+        .offset(x: islandLeadingOffset, y: 0)
+        .offset(x: islandDragDelta.width, y: islandDragDelta.height)
         .animation(panelAnimation, value: isExpanded)
         .onReceive(NotificationCenter.default.publisher(for: .notchiShouldCollapse)) { _ in
             panelManager.collapse()
@@ -142,6 +164,12 @@ struct NotchContentView: View {
         .onChange(of: sessionStore.activeSessionCount) { _, count in
             if count < 2 {
                 showingSessionActivity = false
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .panelStyleDidChange)) { _ in
+            islandSavedOffset = AppSettings.islandOffset
+            if let screen = ScreenSelector.shared.selectedScreen {
+                panelManager.updateGeometry(for: screen)
             }
         }
     }
@@ -200,6 +228,9 @@ struct NotchContentView: View {
                 .padding(.top, 4)
                 .padding(.horizontal, 8)
                 .frame(width: NotchConstants.expandedPanelSize.width - 48)
+                .frame(height: notchSize.height)
+                .contentShape(Rectangle())
+                .gesture(isIslandMode ? islandDragGesture : nil)
             }
         }
     }
@@ -236,7 +267,7 @@ struct NotchContentView: View {
 
     @ViewBuilder
     private var headerRow: some View {
-        if panelManager.hasNotch {
+        if panelManager.hasNotch && !isIslandMode {
             HStack(spacing: 0) {
                 Color.clear
                     .frame(width: notchSize.width - cornerRadiusInsets.closed.top)
@@ -248,17 +279,23 @@ struct NotchContentView: View {
                     .animation(.none, value: isExpanded)
             }
         } else {
-            headerSprites
-                .offset(y: max(-1, (notchSize.height - compactHeaderSpriteSize) / -2))
+            Rectangle()
+                .fill(Color.clear)
                 .frame(width: notchSize.width, height: notchSize.height)
-                .opacity(isExpanded ? 0 : 1)
-                .animation(.none, value: isExpanded)
+                .overlay {
+                    headerSprites
+                        .offset(y: isIslandMode ? 0 : max(-1, (notchSize.height - compactHeaderSpriteSize) / -2))
+                        .opacity(isExpanded ? 0 : 1)
+                        .animation(.none, value: isExpanded)
+                }
+                .contentShape(Rectangle())
+                .gesture(isIslandMode ? islandDragGesture : nil)
         }
     }
 
     @ViewBuilder
     private var headerSprites: some View {
-        if panelManager.hasNotch {
+        if panelManager.hasNotch && !isIslandMode {
             if let topSession = sessionStore.sortedSessions.first {
                 SessionSpriteView(
                     state: topSession.state,
@@ -273,10 +310,13 @@ struct NotchContentView: View {
                         SessionSpriteView(
                             state: session.state,
                             isSelected: session.id == sessionStore.effectiveSession?.id,
-                            size: compactHeaderSpriteSize
+                            size: isIslandMode ? 24 : compactHeaderSpriteSize
                         )
                     }
                 }
+            } else if isIslandMode {
+                // Empty spacer to keep island capsule visible
+                Color.clear.frame(width: 1, height: 1)
             }
         }
     }
@@ -285,9 +325,68 @@ struct NotchContentView: View {
         showingPanelSettings = true
     }
 
+    private var islandDragGesture: some Gesture {
+        DragGesture(minimumDistance: 5, coordinateSpace: .global)
+            .onChanged { value in
+                isDraggingIsland = true
+                islandDragDelta = value.translation
+            }
+            .onEnded { value in
+                isDraggingIsland = false
+                let proposed = CGPoint(
+                    x: islandSavedOffset.x + value.translation.width,
+                    y: islandSavedOffset.y - value.translation.height
+                )
+                // Clamp to keep island within visible area
+                let maxX: CGFloat = 600
+                let maxY: CGFloat = 50
+                let minY: CGFloat = -800
+                let finalOffset = CGPoint(
+                    x: min(max(proposed.x, -maxX), maxX),
+                    y: min(max(proposed.y, minY), maxY)
+                )
+                islandDragDelta = .zero
+                islandSavedOffset = finalOffset
+                AppSettings.islandOffset = finalOffset
+                if let screen = ScreenSelector.shared.selectedScreen {
+                    panelManager.updateGeometry(for: screen)
+                }
+            }
+    }
+
     private func toggleMute() {
         AppSettings.toggleMute()
         isMuted = AppSettings.isMuted
+    }
+}
+
+private struct PanelClipModifier: ViewModifier {
+    let isIslandMode: Bool
+    let islandCornerRadius: CGFloat
+    let topCornerRadius: CGFloat
+    let bottomCornerRadius: CGFloat
+    let isExpanded: Bool
+
+    func body(content: Content) -> some View {
+        if isIslandMode {
+            content
+                .clipShape(RoundedRectangle(cornerRadius: islandCornerRadius, style: .continuous))
+                .overlay(
+                    RoundedRectangle(cornerRadius: islandCornerRadius, style: .continuous)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                )
+                .shadow(color: .black.opacity(0.6), radius: isExpanded ? 12 : 8)
+        } else {
+            content
+                .clipShape(NotchShape(
+                    topCornerRadius: topCornerRadius,
+                    bottomCornerRadius: bottomCornerRadius
+                ))
+                .shadow(
+                    color: isExpanded ? .black.opacity(0.7) : .clear,
+                    radius: 6
+                )
+        }
     }
 }
 

@@ -129,11 +129,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func windowFrame(for screen: NSScreen) -> NSRect {
         let screenFrame = screen.frame
+        let height = AppSettings.panelStyle == .island ? screenFrame.height : windowHeight
         return NSRect(
             x: screenFrame.origin.x,
-            y: screenFrame.maxY - windowHeight,
+            y: screenFrame.maxY - height,
             width: screenFrame.width,
-            height: windowHeight
+            height: height
         )
     }
 
