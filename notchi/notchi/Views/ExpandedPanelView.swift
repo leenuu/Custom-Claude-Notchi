@@ -110,7 +110,9 @@ struct ExpandedPanelView: View {
                     )
                 }
 
-                Spacer()
+                if !isActivityCollapsed {
+                    Spacer()
+                }
 
                 UsageBarView(
                     usage: usageService.currentUsage,
@@ -119,6 +121,7 @@ struct ExpandedPanelView: View {
                     statusMessage: usageService.statusMessage,
                     isStale: usageService.isUsageStale,
                     recoveryAction: usageService.recoveryAction,
+                    compact: isActivityCollapsed,
                     periodLabel: "5h",
                     onConnect: { ClaudeUsageService.shared.connectAndStartPolling() },
                     onRetry: { ClaudeUsageService.shared.retryNow() }
