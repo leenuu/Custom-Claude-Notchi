@@ -232,15 +232,47 @@ private struct GrassSpriteView: View {
     private static let sobTrembleAmplitude: CGFloat = 0.3
 
     private var activeSpriteSheet: String {
-        isDragging ? Self.draggingSpriteSheet : state.spriteSheetName(for: character)
+        if isDragging {
+            let prefix = character.spritePrefix
+            let draggingName = "\(prefix)_dragging"
+            if NSImage(named: draggingName) != nil {
+                return draggingName
+            }
+            // For Bocchi, use "waiting_sad" for dragging if no specific dragging sprite exists,
+            // as it has her iconic terrified/blue-face expression and native head-shaking frames.
+            if character == .bocchi {
+                return "bocchi_waiting_sad"
+            }
+            return "\(prefix)_idle_sob"
+        }
+        return state.spriteSheetName(for: character)
     }
 
     private var activeFrameCount: Int {
-        isDragging ? Self.draggingFrameCount : state.frameCount
+        if isDragging {
+            let prefix = character.spritePrefix
+            if NSImage(named: "\(prefix)_dragging") != nil {
+                return Self.draggingFrameCount
+            }
+            // Use 6 frames for the muri-muri animation (3x2 grid).
+            return 6
+        }
+        return state.frameCount
     }
 
     private var activeColumns: Int {
-        isDragging ? Self.draggingColumns : state.columns
+        if isDragging {
+            let prefix = character.spritePrefix
+            if NSImage(named: "\(prefix)_dragging") != nil {
+                return Self.draggingColumns
+            }
+            // Bocchi's muri-muri uses a 3x2 grid (3 columns).
+            if character == .bocchi {
+                return 3
+            }
+            return 6
+        }
+        return state.columns
     }
 
     private var activeFPS: Double {
