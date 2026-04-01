@@ -29,12 +29,16 @@ Notchi는 Claude Code 활동에 실시간으로 반응하는 macOS 노치 컴패
 
 ### 패치 노트
 
-#### `v1.3.0` - Character Theme
+#### `v1.3.0` - Character Theme & Dynamic Island
 
-- 캐릭터 테마(`CharacterTheme`) 및 설정에 선택값 저장
-- 스프라이트 시트 이름에 테마 접두어 적용
-- 설정 패널에 캐릭터 선택 UI(썸네일 애니메이션)
-- 복치(Bocchi)용 플레이스홀더 스프라이트 에셋 추가
+- 캐릭터 테마(`CharacterTheme`) 시스템 추가 및 설정에 선택값 저장
+- 설정 패널에 캐릭터 선택 UI(썸네일 애니메이션) 추가
+- 봇치(Bocchi) 캐릭터 스프라이트 에셋 추가
+- Dynamic Island 패널 모드 구현 (`PanelStyle`: notch/island)
+- 잔디 영역에서 스프라이트 드래그 앤 드롭 기능 추가
+- 원본 v1.0.2 기능 포팅 (시스템 웨이크, OAuth 검증, settings.json 연동)
+- ContentView 아이템 관리 기능 구현
+- 세션 없을 때 idle 스프라이트 제거
 - 테마 변경 시 스프라이트 뷰가 즉시 반응하도록 수정
 
 #### `v1.2.2` - Update & Deploy
@@ -87,13 +91,17 @@ This repository contains a customized release based on the original author's `v1
 
 ### Patch Notes
 
-#### `v1.3.0` - Character Theme
+#### `v1.3.0` - Character Theme & Dynamic Island
 
-- `CharacterTheme` enum and persisted selection in app settings
-- Theme prefix in sprite sheet resolution
+- `CharacterTheme` system with persisted selection in app settings
 - Character picker in settings panel with animated thumbnails
-- Bocchi placeholder sprite assets
-- Sprite views refresh when the character theme changes
+- Bocchi character sprite assets
+- Dynamic Island panel mode (`PanelStyle`: notch/island)
+- Sprite drag & drop in the grass area
+- Ported v1.0.2 features (system wake, OAuth verification, settings.json integration)
+- ContentView item management
+- Removed idle sprite when no active session
+- Sprite views refresh immediately on character theme change
 
 #### `v1.2.2` - Update & Deploy
 
